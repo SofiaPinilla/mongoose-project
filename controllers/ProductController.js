@@ -14,10 +14,11 @@ const ProductController = {
   },
   async getAll(req, res) {
     try {
-        const { page = 1, limit = 10 } = req.query;//recogemos los datos
-        const products = await Product.find()
-          .limit(limit)//establecemos limite de respuesta
-          .skip((page - 1) * limit);//saltamos de 10 en 10 la pagina
+      const { page = 1, limit = 10 } = req.query; //recogemos los datos
+      const products = await Product.find()
+        .populate("reviews.userId")
+        .limit(limit) //establecemos limite de respuesta
+        .skip((page - 1) * limit); //saltamos de 10 en 10 la pagina
       res.send(products);
     } catch (error) {
       console.error(error);
@@ -57,11 +58,9 @@ const ProductController = {
       res.send({ message: "Product deleted", product });
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .send({
-          message: "there was a problem trying to remove the publication",
-        });
+      res.status(500).send({
+        message: "there was a problem trying to remove the publication",
+      });
     }
   },
   async update(req, res) {
@@ -74,6 +73,23 @@ const ProductController = {
       res.send({ message: "product successfully updated", product });
     } catch (error) {
       console.error(error);
+    }
+  },
+  async insertComment(req, res) {
+    try {
+      const product = await Product.findByIdAndUpdate(
+        req.params._id,
+        {
+          $push: {
+            reviews: { comment: req.body.comment, userId: req.user._id },
+          },
+        },
+        { new: true }
+      );
+      res.send(product);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: "There was a problem with your review" });
     }
   },
 };
