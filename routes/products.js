@@ -10,4 +10,6 @@ router.get("/getByName/:name", ProductController.getProductsByName)
 router.delete("/deleteById/:_id",authentication,isAdmin,ProductController.delete)
 router.put("/updateById/:_id",authentication,isAdmin,ProductController.update)
 router.put("/createReview/:_id",authentication, ProductController.insertComment)
+router.put("/like/:_id",authentication,ProductController.like)
+
 module.exports = router

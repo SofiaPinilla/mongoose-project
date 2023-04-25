@@ -2,12 +2,13 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { jwt_secret } = require("../config/keys");
 const UserController = {
-  async register(req, res) {
+  async register(req, res, next) {
     try {
       const user = await User.create(req.body);
       res.status(201).send({ message: "Usuario registrado con exito", user });
     } catch (error) {
       console.error(error);
+      next(error);
     }
   },
   async login(req, res) {
@@ -27,13 +28,13 @@ const UserController = {
   },
   async logout(req, res) {
     try {
-        //borrar todas las sesiones
-        // await User.findByIdAndUpdate(req.user._id, {
-        //     tokens: [] ,
-        //   });
-        await User.findByIdAndUpdate(req.user._id, {
-            $pull: { tokens: req.headers.authorization },
-          });    
+      //borrar todas las sesiones
+      // await User.findByIdAndUpdate(req.user._id, {
+      //     tokens: [] ,
+      //   });
+      await User.findByIdAndUpdate(req.user._id, {
+        $pull: { tokens: req.headers.authorization },
+      });
       res.send({ message: "Desconectado con éxito" });
     } catch (error) {
       console.error(error);
@@ -44,19 +45,20 @@ const UserController = {
   },
   async getInfo(req, res) {
     try {
-      const user = await User.findById(req.user._id).populate({
-        path: "orderIds",
-        populate: {
-          path: "productIds",
-        },
-      });
+      const user = await User.findById(req.user._id)
+        .populate({
+          path: "orderIds",
+          populate: {
+            path: "productIds",
+          },
+        })
+        .populate("wishList");
 
       res.send(user);
     } catch (error) {
       console.error(error);
     }
   },
-
 };
 
 module.exports = UserController;
