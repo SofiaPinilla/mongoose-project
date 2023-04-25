@@ -1,15 +1,21 @@
 const express = require("express");
 const app = express();
 const PORT = 8080;
-const { dbConnection } = require("./config/config")
+const { dbConnection } = require("./config/config");
 
-app.use(express.json())
+app.use(express.json());
 
-dbConnection()
+dbConnection();
 
 //routes
-app.use("/products",require("./routes/products"))
-app.use("/users",require("./routes/users"))
-app.use("/orders",require("./routes/orders"))
+app.use("/products", require("./routes/products"));
+app.use("/users", require("./routes/users"));
+app.use("/orders", require("./routes/orders"));
 
-app.listen(PORT, ()=> console.log(`Server started on port ${PORT}`));
+
+app.get("/myName", (req, res) => {
+  res.send("My name is " + req.query.name + " " + req.query.lastname);
+});
+// localhost:8080/myName/?name=pedro
+
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
